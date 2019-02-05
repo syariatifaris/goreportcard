@@ -12,10 +12,10 @@ type standard struct {
 	*Config
 }
 
-func (s *standard) Run(ctx context.Context) error {
+func (s *standard) Run(ctx context.Context) (bool, error) {
 	result, err := check.Run(s.Dir)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("unable to check dir %s", s.Dir))
+		return false, errors.Wrap(err, fmt.Sprintf("unable to check dir %s", s.Dir))
 	}
 	showReport(&result)
 	for _, c := range result.Checks {
@@ -30,9 +30,9 @@ func (s *standard) Run(ctx context.Context) error {
 		}
 	}
 	if avg := result.Average * 100; avg < s.FailThres {
-		return fmt.Errorf("examination not pass at %f, try again", avg)
+		return false, fmt.Errorf("examination not pass at %f, try again", avg)
 	}
-	return nil
+	return true, nil
 }
 
 func showReport(result *check.ChecksResult) {

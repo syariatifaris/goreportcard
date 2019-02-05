@@ -18,18 +18,22 @@ type formatted struct {
 	notifier hook.Notifier
 }
 
-func (f *formatted) Run(ctx context.Context) error {
+func (f *formatted) Run(ctx context.Context) (bool, error) {
 	result, err := check.Run(f.Dir)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("unable to check dir %s", f.Dir))
+		return false, errors.Wrap(err, fmt.Sprintf("unable to check dir %s", f.Dir))
 	}
+	avg := result.Average * 100
+	pass := avg >= f.FailThres
 	rc := &ReportCard{
 		Grade: Grade{
 			Rank:       fmt.Sprint(result.Grade),
 			Percentage: fmt.Sprintf("%.1f%%", result.Average*100),
 		},
-		Files:  result.Files,
-		Issues: result.Issues,
+		Files:     result.Files,
+		Issues:    result.Issues,
+		Passed:    pass,
+		Threshold: f.FailThres,
 	}
 	ls := make(map[string]interface{}, 0)
 	for _, c := range result.Checks {
@@ -38,7 +42,7 @@ func (f *formatted) Run(ctx context.Context) error {
 	rc.LinterScores = ls
 	bytes, err := json.MarshalIndent(rc, "", "\t")
 	if err != nil {
-		return errors.Wrap(err, "scoring failed")
+		return false, errors.Wrap(err, "scoring failed")
 	}
 	fmt.Println(string(bytes))
 	if f.notifier != nil {
@@ -47,11 +51,14 @@ func (f *formatted) Run(ctx context.Context) error {
 		defer cancel()
 		responses, err := f.notifier.Do(ctx, string(bytes))
 		if err != nil {
-			return errors.Wrap(err, "unable to finish hook call(s)")
+			return false, errors.Wrap(err, "unable to finish hook call(s)")
 		}
 		bytes, err := json.MarshalIndent(responses, "", "\t")
 		fmt.Println("hook responses:")
 		fmt.Println(string(bytes))
 	}
-	return nil
+	if !pass {
+		return false, nil
+	}
+	return true, nil
 }

@@ -50,6 +50,8 @@ type ReportCard struct {
 	Grade        Grade                  `json:"grade"`
 	Files        int                    `json:"files"`
 	Issues       int                    `json:"issues"`
+	Passed       bool                   `json:"passed"`
+	Threshold    float64                `json:"threshold"`
 	LinterScores map[string]interface{} `json:"linter_scores"`
 }
 
@@ -69,7 +71,7 @@ type HookHeader struct {
 
 //Runner as runner abstract
 type Runner interface {
-	Run(ctx context.Context) error
+	Run(ctx context.Context) (bool, error)
 }
 
 func buildNotifier(path string) (hook.Notifier, error) {

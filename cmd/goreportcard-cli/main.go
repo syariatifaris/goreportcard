@@ -36,10 +36,15 @@ func main() {
 	if e == nil {
 		log.Fatalln("fatal, unable to start checker. Invalid runner type")
 	}
-	err = e.Run(context.Background())
+	ok, err := e.Run(context.Background())
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
+		return
+	}
+	if !ok {
+		os.Exit(1)
+		return
 	}
 	return
 }
