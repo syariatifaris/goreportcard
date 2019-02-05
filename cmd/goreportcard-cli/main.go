@@ -3,43 +3,33 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/gojp/goreportcard/check"
+	//"fmt"
+	"log"
+
+	"github.com/syariatifaris/goreportcard/cmd/goreportcard-cli/exec"
+	//"os"
+	//"github.com/gojp/goreportcard/check"
 )
 
 var (
 	dir     = flag.String("d", ".", "Root directory of your Go application")
 	verbose = flag.Bool("v", false, "Verbose output")
 	th      = flag.Float64("t", 0, "Threshold of failure command")
+	format  = flag.Bool("f", false, "Print Using format (JSON)")
 )
 
 func main() {
 	flag.Parse()
-
-	result, err := check.Run(*dir)
+	e := exec.New(&exec.Config{Dir: *dir, UseFormat: *format, Verbose: *verbose, FailThres: *th})
+	if e == nil {
+		log.Fatalln("Fatal, unable to start checker. Invalid runner type")
+	}
+	err := e.Run()
 	if err != nil {
-		log.Fatalf("Fatal error checking %s: %s", *dir, err.Error())
-	}
-
-	fmt.Printf("Grade: %s (%.1f%%)\n", result.Grade, result.Average*100)
-	fmt.Printf("Files: %d\n", result.Files)
-	fmt.Printf("Issues: %d\n", result.Issues)
-
-	for _, c := range result.Checks {
-		fmt.Printf("%s: %d%%\n", c.Name, int64(c.Percentage*100))
-		if *verbose && len(c.FileSummaries) > 0 {
-			for _, f := range c.FileSummaries {
-				fmt.Printf("\t%s\n", f.Filename)
-				for _, e := range f.Errors {
-					fmt.Printf("\t\tLine %d: %s\n", e.LineNumber, e.ErrorString)
-				}
-			}
-		}
-	}
-
-	if result.Average*100 < *th {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+	return
 }

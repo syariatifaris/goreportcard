@@ -28,3 +28,10 @@ _testmain.go
 _repos
 
 goreportcard.db
+
+#IDE
+.idea/*
+.vscode/*
+
+#Vendor
+vendor/*
