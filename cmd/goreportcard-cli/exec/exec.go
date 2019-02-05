@@ -16,9 +16,13 @@ func New(c *Config) (Runner, error) {
 			Config: c,
 		}, nil
 	}
-	n, err := buildNotifier(c.HookFile)
-	if err != nil {
-		return nil, err
+	var n hook.Notifier
+	if c.HookFile != "" {
+		notifier, err := buildNotifier(c.HookFile)
+		if err != nil {
+			return nil, err
+		}
+		n = notifier
 	}
 	return &formatted{
 		Config:   c,

@@ -67,7 +67,23 @@ goreportcard-cli -f
 
 It will show result such as:
 ```$xslt
-{"grade":{"rank":"A","percentage":"87.5%"},"files":515,"issues":199,"linter_scores":{"go_vet":"98%","gocyclo":"96%","gofmt":"93%","golint":"72%","ineffassign":"97%","license":"0%","misspell":"99%"}}
+{
+	"grade": {
+		"rank": "A+",
+		"percentage": "99.8%"
+	},
+	"files": 433,
+	"issues": 5,
+	"linter_scores": {
+		"go_vet": "99%",
+		"gocyclo": "99%",
+		"gofmt": "100%",
+		"golint": "99%",
+		"ineffassign": "99%",
+		"license": "100%",
+		"misspell": "100%"
+	}
+}
 ```
 
 #### Simple Format
