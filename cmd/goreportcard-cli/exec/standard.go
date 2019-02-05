@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -11,7 +12,7 @@ type standard struct {
 	*Config
 }
 
-func (s *standard) Run() error {
+func (s *standard) Run(ctx context.Context) error {
 	result, err := check.Run(s.Dir)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("unable to check dir %s", s.Dir))

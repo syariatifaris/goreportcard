@@ -1,16 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
-	//"fmt"
-	"log"
-
 	"github.com/syariatifaris/goreportcard/cmd/goreportcard-cli/exec"
-	//"os"
-	//"github.com/gojp/goreportcard/check"
 )
 
 var (
@@ -18,15 +15,28 @@ var (
 	verbose = flag.Bool("v", false, "Verbose output")
 	th      = flag.Float64("t", 0, "Threshold of failure command")
 	format  = flag.Bool("f", false, "Print Using format (JSON)")
+	hook    = flag.String("hook", "", "hook config file location")
+	timeout = flag.Int("timeout", 5, "hook request timeout")
 )
 
 func main() {
 	flag.Parse()
-	e := exec.New(&exec.Config{Dir: *dir, UseFormat: *format, Verbose: *verbose, FailThres: *th})
-	if e == nil {
-		log.Fatalln("Fatal, unable to start checker. Invalid runner type")
+	e, err := exec.New(&exec.Config{
+		Dir:         *dir,
+		UseFormat:   *format,
+		Verbose:     *verbose,
+		FailThres:   *th,
+		HookFile:    *hook,
+		HookTimeout: *timeout,
+	})
+	if err != nil {
+		fmt.Println("unable to execute:", err.Error())
+		os.Exit(1)
 	}
-	err := e.Run()
+	if e == nil {
+		log.Fatalln("fatal, unable to start checker. Invalid runner type")
+	}
+	err = e.Run(context.Background())
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

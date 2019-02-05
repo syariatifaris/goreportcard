@@ -1,24 +1,40 @@
 package exec
 
+import (
+	"context"
+	"encoding/json"
+	"io/ioutil"
+	"os"
+
+	"github.com/syariatifaris/goreportcard/cmd/goreportcard-cli/exec/hook"
+)
+
 //New creates new runner object
-func New(c *Config) Runner {
+func New(c *Config) (Runner, error) {
 	if !c.UseFormat {
 		return &standard{
 			Config: c,
-		}
+		}, nil
+	}
+	n, err := buildNotifier(c.HookFile)
+	if err != nil {
+		return nil, err
 	}
 	return &formatted{
-		Config: c,
-	}
+		Config:   c,
+		notifier: n,
+	}, nil
 }
 
 //Config as execution configuration
 type Config struct {
-	FailThres  float64
-	Dir        string
-	UseFormat  bool
-	Verbose    bool
-	FormatName string
+	FailThres   float64
+	Dir         string
+	UseFormat   bool
+	Verbose     bool
+	FormatName  string
+	HookFile    string
+	HookTimeout int
 }
 
 type Grade struct {
@@ -33,7 +49,49 @@ type ReportCard struct {
 	LinterScores map[string]interface{} `json:"linter_scores"`
 }
 
+type HookConfig struct {
+	Hooks []*Hook `json:"hooks"`
+}
+
+type Hook struct {
+	URL     string        `json:"url"`
+	Headers []*HookHeader `json:"headers"`
+}
+
+type HookHeader struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 //Runner as runner abstract
 type Runner interface {
-	Run() error
+	Run(ctx context.Context) error
+}
+
+func buildNotifier(path string) (hook.Notifier, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	bytes, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+	var config *HookConfig
+	err = json.Unmarshal(bytes, &config)
+	if err != nil {
+		return nil, err
+	}
+	reqs := make(map[string]*hook.RequestBody, len(config.Hooks))
+	for _, h := range config.Hooks {
+		headers := make(map[string]string, len(h.Headers))
+		for _, header := range h.Headers {
+			headers[header.Key] = header.Value
+		}
+		reqs[h.URL] = &hook.RequestBody{
+			Headers: headers,
+		}
+	}
+	return hook.NewNotifier(reqs), nil
 }
