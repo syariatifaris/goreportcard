@@ -20,6 +20,7 @@ This will run dep ensure, and installing `goreportcard-cli` to your PATH
 
 ### Standard Installation
 
+This standard installation will pull the latest version of `github.com/gojp/goreportcard`. 
 Assuming you already have a recent version of Go installed, pull down the code with `go get`:
 
 ```
@@ -115,6 +116,66 @@ license: 100%
 misspell: 100%
 ```
 
+### Hook
+
+This fork version `github.com/syariatifaris/goreportcard` enables POST to enlisted hooks to send the report data for various purpose. 
+You need to prepare the accessible endpoint so the goreportcard able to send the data using REST. 
+
+1. Create hook config json file such as:
+```aidl
+{
+    "hooks": [
+        {
+            "url": "http://hook1.service.consul/",
+            "headers":[
+                {
+                    "key": "Auth",
+                    "value": "abcd"
+                },
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+            ]
+        }
+    ]
+}
+```
+
+2. Save the file as a json file i.e: `hook.json`
+3. Run:
+```aidl
+goreportcard-cli -f -hook "pathto/hook.json" -timeout 10
+```
+4. You will see the output such as: 
+```aidl
+{
+	"grade": {
+		"rank": "A+",
+		"percentage": "99.8%"
+	},
+	"files": 433,
+	"issues": 5,
+	"linter_scores": {
+		"go_vet": "99%",
+		"gocyclo": "99%",
+		"gofmt": "100%",
+		"golint": "99%",
+		"ineffassign": "99%",
+		"license": "100%",
+		"misspell": "100%"
+	}
+}
+contacting hook to send data ..
+hook responses:
+[
+	{
+		"url": "http://hook.service.consul",
+		"status_code": 200,
+		"message": "some message from hook"
+	}
+]
+```
 ### Contributing
 
 Go Report Card is an open source project run by volunteers, and contributions are welcome! Check out the [Issues](https://github.com/gojp/goreportcard/issues) page to see if your idea for a contribution has already been mentioned, and feel free to raise an issue or submit a pull request.

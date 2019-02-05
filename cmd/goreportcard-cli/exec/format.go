@@ -36,7 +36,7 @@ func (f *formatted) Run(ctx context.Context) error {
 		ls[c.Name] = fmt.Sprint(int64(c.Percentage*100), "%")
 	}
 	rc.LinterScores = ls
-	bytes, err := json.Marshal(rc)
+	bytes, err := json.MarshalIndent(rc, "", "\t")
 	if err != nil {
 		return errors.Wrap(err, "scoring failed")
 	}
