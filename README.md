@@ -4,7 +4,21 @@
 
 A web application that generates a report on the quality of an open source go project. It uses several measures, including `gofmt`, `go vet`, `go lint` and `gocyclo`. To get a report on your own project, try using the hosted version of this code running at [goreportcard.com](https://goreportcard.com).
 
-### Installation
+### Requirement
+
+For custom `goreportcard` installation, you need to install `Go Dep`. 
+
+### Custom Installation
+
+Run
+
+```$xslt
+sh install.sh
+```
+
+This will run dep ensure, and installing `goreportcard-cli` to your PATH
+
+### Standard Installation
 
 Assuming you already have a recent version of Go installed, pull down the code with `go get`:
 
@@ -42,6 +56,20 @@ make start
 ### Command Line Interface
 
 There is also a CLI available for grading applications on your local machine.
+
+#### JSON Format
+
+To format the response as a JSON, run:
+```$xslt
+goreportcard-cli -f
+```
+
+It will show result such as:
+```$xslt
+{"grade":{"rank":"A","percentage":"87.5%"},"files":515,"issues":199,"linter_scores":{"go_vet":"98%","gocyclo":"96%","gofmt":"93%","golint":"72%","ineffassign":"97%","license":"0%","misspell":"99%"}}
+```
+
+#### Simple Format
 
 Example usage:
 ```
