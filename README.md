@@ -2,7 +2,9 @@
 
 # Go Report Card
 
-A web application that generates a report on the quality of an open source go project. It uses several measures, including `gofmt`, `go vet`, `go lint` and `gocyclo`. To get a report on your own project, try using the hosted version of this code running at [goreportcard.com](https://goreportcard.com).
+This repository is a fork version from `github.com/gojp/goreportcard`. All inherited functionalities such as the web dashboard and goreportcard-cli persists in this repository. This forked version provide more robust presentation and hook communication between the cli tools and user's REST API.
+
+`goreportcard` is a web application that generates a report on the quality of an open source go project. It uses several measures, including `gofmt`, `go vet`, `go lint` and `gocyclo`. To get a report on your own project, try using the hosted version of this code running at [goreportcard.com](https://goreportcard.com).
 
 ### Requirement
 
